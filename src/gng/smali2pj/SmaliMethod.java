@@ -61,9 +61,9 @@ public class SmaliMethod {
 				line = line.trim();
 				
 				// Handle Parameter
-				if (line.startsWith(".parameter")){
+				if (line.startsWith(".parameter") || line.startsWith(".param")){
 					line = Utils.removeFirstWord(line);
-					if (line.startsWith(".parameter")){line = "noname" + (this.PARAM_NAMES.size()+1);}
+					if (line.startsWith(".parameter") || line.startsWith(".parameter")){line = "noname" + (this.PARAM_NAMES.size()+1);}
 					else{
 						if (line.startsWith("\"")) line = line.substring(1, line.length()-1);
 					}					

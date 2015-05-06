@@ -133,4 +133,56 @@ public class Utils {
 		}
 		return line;
 	}
+	
+	/*
+	private String s2pj_IfLessThan(String line){
+		String[] parts = line.split(", ");
+		String left = getVarName(parts[0]);
+		String right = getVarName(parts[1]);
+		String go = parts[2].trim();
+		return "if (" + left + " < " + right + ") goto " + go;
+	}
+	
+	private String s2pj_IfGreaterThan(String line){
+		String[] parts = line.split(", ");
+		String left = getVarName(parts[0]);
+		String right = getVarName(parts[1]);
+		String go = parts[2].trim();
+		return "if (" + left + " > " + right + ") goto " + go;
+	}
+	
+	private String s2pj_IfLesserEqual(String line){
+		String[] parts = line.split(", ");
+		String left = getVarName(parts[0]);
+		String right = getVarName(parts[1]);
+		String go = parts[2].trim();
+		return "if (" + left + " <= " + right +") goto " + go;
+	}
+	
+	private String s2pj_IfGreaterEqual(String line){
+		String[] parts = line.split(", ");
+		String left = getVarName(parts[0]);
+		String right = getVarName(parts[1]);
+		String go = parts[2].trim();
+		return "if (" + left + " >= " + right +") goto " + go;
+	}
+	*/
+	
+	/*
+	 private String s2pj_DivIntLit8(String line){
+		String[] parts = line.split(", ");
+		String dest = getVarName(parts[0]);
+		String src = getVarName(parts[1]);
+		String val = parts[2];
+		return dest + " = " + src + "/" + val + ";"; 
+	}
+	
+	private String s2pj_AddIntLit8(String line){
+		String[] parts = line.split(", ");
+		String dest = getVarName(parts[0]);
+		String src = getVarName(parts[1]);
+		String val = parts[2].trim();
+		return dest + " = " + src + " + " + val + ";";
+	}
+	*/
 }
