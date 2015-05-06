@@ -18,6 +18,9 @@ public class Utils {
 	public static boolean SHOW_DEST_TYPE = false;
 	public static boolean REPLACE_VAR_NAMES = false;
 	
+	public static int PADDING_INFRONT = 0;
+	public static int PADDING_BEHIND = 1;
+	
 	public static ArrayList<String> processParamTypes(String line){
 		ArrayList<String> params = new ArrayList<String>();
 		String curChar = "";
@@ -132,6 +135,40 @@ public class Utils {
 			line = line.substring(0, line.indexOf("#"));
 		}
 		return line;
+	}
+	
+	public static String padToWide(String input, int direction){
+		if (input.startsWith("0x")) input = input.substring(2);
+		if (direction == Utils.PADDING_INFRONT){
+			// Pad Infront
+			while (input.length() < 16) input = "0" + input;
+		}
+		else if (direction == Utils.PADDING_BEHIND){
+			// Pad Behind
+			while (input.length() < 16) input = input + "0";
+		}
+		else input = "[ERROR] Unknown Wide Padding Direction";
+		return "0x"+input;
+	}
+	
+	public static String padToNormal(String input, int direction){
+		if (input.startsWith("0x")) input = input.substring(2);
+		if (direction == Utils.PADDING_INFRONT){
+			// Pad Infront
+			while (input.length() < 8) input = "0" + input;
+		}
+		else if (direction == Utils.PADDING_BEHIND){
+			// Pad Behind
+			while (input.length() < 8) input = input + "0";
+		}
+		else input = "[ERROR] Unknown Normal Padding Direction";
+		return "0x"+input;
+	}
+	
+	public static String splitWideValue(String widevalue){
+		if (widevalue.startsWith("0x")) widevalue = widevalue.substring(2);
+		widevalue = widevalue.substring(0,8) + " " + widevalue.substring(8);
+		return "0x"+widevalue;
 	}
 	
 	/*

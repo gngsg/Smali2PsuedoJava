@@ -61,14 +61,24 @@ public class SmaliMethod {
 				line = line.trim();
 				
 				// Handle Parameter
-				if (line.startsWith(".parameter") || line.startsWith(".param")){
+				if (line.startsWith(".parameter")){
 					line = Utils.removeFirstWord(line);
-					if (line.startsWith(".parameter") || line.startsWith(".parameter")){line = "noname" + (this.PARAM_NAMES.size()+1);}
+					if (line.startsWith(".parameter")){line = "noname" + (this.PARAM_NAMES.size()+1);}
 					else{
 						if (line.startsWith("\"")) line = line.substring(1, line.length()-1);
 					}					
 					this.PARAM_NAMES.add(line);
-				}			
+				}
+				else if (line.startsWith(".param")){
+					line = Utils.removeFirstWord(line);
+					if (line.startsWith(".param")){line = "noname" + (this.PARAM_NAMES.size()+1);}
+					else{
+						int startpos = line.indexOf("\"");
+						int endpos = line.indexOf("\"", startpos+1);
+						line = line.substring(startpos+1, endpos);
+					}
+					this.PARAM_NAMES.add(line);
+				}
 				
 				else if (line.startsWith(".prologue")){} // Do Nothing
 				else if (line.startsWith(".line")){} // Do Nothing
@@ -321,7 +331,7 @@ public class SmaliMethod {
 			return "";
 		}
 		
-		else if	(line.startsWith("const")) 			return s2pj_Const(Utils.removeFirstWord(line));
+		else if	(line.startsWith("const")) 			return s2pj_Const(line);
 		
 		else if	(line.startsWith("add-int/lit")) 	return s2pj_ArithmeticLiteral(Utils.removeFirstWord(line), "+");
 		else if	(line.startsWith("sub-int/lit")) 	return s2pj_ArithmeticLiteral(Utils.removeFirstWord(line), "-");
@@ -335,50 +345,71 @@ public class SmaliMethod {
 		else if	(line.startsWith("shr-int/lit")) 	return s2pj_ArithmeticLiteral(Utils.removeFirstWord(line), ">>");
 		else if	(line.startsWith("ushr-int/lit")) 	return s2pj_ArithmeticLiteral(Utils.removeFirstWord(line), ">>>");
 		
-		else if	(line.startsWith("add-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "+");
-		else if	(line.startsWith("sub-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "-");
-		else if	(line.startsWith("mul-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "*");
-		else if	(line.startsWith("div-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "/");
-		else if	(line.startsWith("rem-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "%");
-		else if	(line.startsWith("and-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "&");
-		else if	(line.startsWith("or-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "|");
-		else if	(line.startsWith("xor-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "^");
-		else if	(line.startsWith("shl-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "<<");
-		else if	(line.startsWith("shr-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), ">>");
-		else if	(line.startsWith("ushr-int/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), ">>>");				
-		else if	(line.startsWith("add-long/2addr"))	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "+");
-		else if	(line.startsWith("sub-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "-");
-		else if	(line.startsWith("mul-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "*");
-		else if	(line.startsWith("div-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "/");
-		else if	(line.startsWith("rem-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "%");
-		else if	(line.startsWith("and-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "&");
-		else if	(line.startsWith("or-long/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "|");
-		else if	(line.startsWith("xor-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "^");
-		else if	(line.startsWith("shl-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "<<");
-		else if	(line.startsWith("shr-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), ">>");
-		else if	(line.startsWith("ushr-long/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), ">>>");				
-		else if	(line.startsWith("add-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "+");
-		else if	(line.startsWith("sub-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "-");
-		else if	(line.startsWith("mul-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "*");
-		else if	(line.startsWith("div-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "/");
-		else if	(line.startsWith("rem-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "%");				
-		else if	(line.startsWith("add-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "+");
-		else if	(line.startsWith("sub-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "-");
-		else if	(line.startsWith("mul-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "*");
-		else if	(line.startsWith("div-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "/");
-		else if	(line.startsWith("rem-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "%");
+		else if	(line.startsWith("add-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "+", false);
+		else if	(line.startsWith("sub-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "-", false);
+		else if	(line.startsWith("mul-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "*", false);
+		else if	(line.startsWith("div-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "/", false);
+		else if	(line.startsWith("rem-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "%", false);
+		else if	(line.startsWith("and-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "&", false);
+		else if	(line.startsWith("or-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "|", false);
+		else if	(line.startsWith("xor-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "^", false);
+		else if	(line.startsWith("shl-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "<<", false);
+		else if	(line.startsWith("shr-int/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), ">>", false);
+		else if	(line.startsWith("ushr-int/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), ">>>", false);
+		else if	(line.startsWith("add-long/2addr"))	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "+", true);
+		else if	(line.startsWith("sub-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "-", true);
+		else if	(line.startsWith("mul-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "*", true);
+		else if	(line.startsWith("div-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "/", true);
+		else if	(line.startsWith("rem-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "%", true);
+		else if	(line.startsWith("and-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "&", true);
+		else if	(line.startsWith("or-long/2addr")) 	return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "|", true);
+		else if	(line.startsWith("xor-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "^", true);
+		else if	(line.startsWith("shl-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "<<", true);
+		else if	(line.startsWith("shr-long/2addr")) return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), ">>", true);
+		else if	(line.startsWith("ushr-long/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), ">>>", true);
+		else if	(line.startsWith("add-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "+", false);
+		else if	(line.startsWith("sub-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "-", false);
+		else if	(line.startsWith("mul-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "*", false);
+		else if	(line.startsWith("div-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "/", false);
+		else if	(line.startsWith("rem-float/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "%", false);
+		else if	(line.startsWith("add-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "+", true);
+		else if	(line.startsWith("sub-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "-", true);
+		else if	(line.startsWith("mul-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "*", true);
+		else if	(line.startsWith("div-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "/", true);
+		else if	(line.startsWith("rem-double/2addr"))return s2pj_Arithmetic2Address(Utils.removeFirstWord(line), "%", true);
 		
-		else if	(line.startsWith("add-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "+");
-		else if	(line.startsWith("sub-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "-");
-		else if	(line.startsWith("mul-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "*");
-		else if	(line.startsWith("div-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "/");
-		else if	(line.startsWith("rem-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "%");
-		else if	(line.startsWith("and-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "&");
-		else if	(line.startsWith("or-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "|");
-		else if	(line.startsWith("xor-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "^");
-		else if	(line.startsWith("shl-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "<<");
-		else if	(line.startsWith("shr-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), ">>");
-		else if	(line.startsWith("ushr-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), ">>>");
+		else if	(line.startsWith("add-double")) 	return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "+", true);
+		else if	(line.startsWith("add-long")) 		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "+", true);
+		else if	(line.startsWith("add-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "+", false);
+		else if	(line.startsWith("sub-double"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "-", true);
+		else if	(line.startsWith("sub-long"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "-", true);
+		else if	(line.startsWith("sub-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "-", false);
+		else if	(line.startsWith("mul-double"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "*", true);
+		else if	(line.startsWith("mul-long"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "*", true);
+		else if	(line.startsWith("mul-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "*", false);
+		else if	(line.startsWith("div-double"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "/", true);
+		else if	(line.startsWith("div-long"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "/", true);
+		else if	(line.startsWith("div-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "/", false);
+		else if	(line.startsWith("rem-double")) 	return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "%", true);
+		else if	(line.startsWith("rem-long")) 		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "%", true);
+		else if	(line.startsWith("rem-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "%", false);
+		else if	(line.startsWith("and-long"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "&", true);
+		else if	(line.startsWith("and-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "&", false);
+		else if	(line.startsWith("or-long"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "|", true);
+		else if	(line.startsWith("or-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "|", false);
+		else if	(line.startsWith("xor-long"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "^", true);
+		else if	(line.startsWith("xor-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "^", false);
+		else if	(line.startsWith("shl-long"))		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "<<", true);
+		else if	(line.startsWith("shl-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), "<<", false);
+		else if	(line.startsWith("shr-long")) 		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), ">>", true);
+		else if	(line.startsWith("shr-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), ">>", false);
+		else if	(line.startsWith("ushr-long")) 		return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), ">>>", true);
+		else if	(line.startsWith("ushr-")) 			return s2pj_ArithmeticNormal(Utils.removeFirstWord(line), ">>>", false);
+		else if	(line.startsWith("neg-double"))		return s2pj_Negate(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("neg-long"))		return s2pj_Negate(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("neg"))			return s2pj_Negate(Utils.removeFirstWord(line), false);
+		else if	(line.startsWith("not-long"))		return s2pj_Not(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("not"))			return s2pj_Not(Utils.removeFirstWord(line), false);
 		
 		else if	(line.startsWith("if-eqz")) 		return s2pj_IfZero(Utils.removeFirstWord(line), "==");
 		else if	(line.startsWith("if-nez")) 		return s2pj_IfZero(Utils.removeFirstWord(line), "!=");
@@ -393,28 +424,34 @@ public class SmaliMethod {
 		else if	(line.startsWith("if-le")) 			return s2pj_If2Operands(Utils.removeFirstWord(line), "<=");
 		else if	(line.startsWith("if-ge")) 			return s2pj_If2Operands(Utils.removeFirstWord(line), ">=");
 		
-		else if	(line.startsWith("int-to-long")) 	return s2pj_ToType(Utils.removeFirstWord(line), "long");
-		else if	(line.startsWith("int-to-float")) 	return s2pj_ToType(Utils.removeFirstWord(line), "float");
-		else if	(line.startsWith("int-to-double")) 	return s2pj_ToType(Utils.removeFirstWord(line), "double");
-		else if	(line.startsWith("long-to-int")) 	return s2pj_ToType(Utils.removeFirstWord(line), "int");
-		else if	(line.startsWith("long-to-float")) 	return s2pj_ToType(Utils.removeFirstWord(line), "float");
-		else if	(line.startsWith("long-to-double")) return s2pj_ToType(Utils.removeFirstWord(line), "double");
-		else if	(line.startsWith("float-to-int"))	return s2pj_ToType(Utils.removeFirstWord(line), "int");
-		else if	(line.startsWith("float-to-long"))	return s2pj_ToType(Utils.removeFirstWord(line), "long");
-		else if	(line.startsWith("float-to-double"))return s2pj_ToType(Utils.removeFirstWord(line), "double");
-		else if	(line.startsWith("double-to-int"))	return s2pj_ToType(Utils.removeFirstWord(line), "int");
-		else if	(line.startsWith("double-to-long"))	return s2pj_ToType(Utils.removeFirstWord(line), "long");
-		else if	(line.startsWith("double-to-float"))return s2pj_ToType(Utils.removeFirstWord(line), "float");
-		else if	(line.startsWith("int-to-byte")) 	return s2pj_ToType(Utils.removeFirstWord(line), "byte");
-		else if	(line.startsWith("int-to-char")) 	return s2pj_ToType(Utils.removeFirstWord(line), "char");
-		else if	(line.startsWith("int-to-short")) 	return s2pj_ToType(Utils.removeFirstWord(line), "short");
+		else if	(line.startsWith("int-to-long")) 	return s2pj_ToType(Utils.removeFirstWord(line), "long", false, true);
+		else if	(line.startsWith("int-to-float")) 	return s2pj_ToType(Utils.removeFirstWord(line), "float", false, false);
+		else if	(line.startsWith("int-to-double")) 	return s2pj_ToType(Utils.removeFirstWord(line), "double", false, true);
+		else if	(line.startsWith("long-to-int")) 	return s2pj_ToType(Utils.removeFirstWord(line), "int", true, false);
+		else if	(line.startsWith("long-to-float")) 	return s2pj_ToType(Utils.removeFirstWord(line), "float", true, false);
+		else if	(line.startsWith("long-to-double")) return s2pj_ToType(Utils.removeFirstWord(line), "double", true, true);
+		else if	(line.startsWith("float-to-int"))	return s2pj_ToType(Utils.removeFirstWord(line), "int", false, false);
+		else if	(line.startsWith("float-to-long"))	return s2pj_ToType(Utils.removeFirstWord(line), "long", false, true);
+		else if	(line.startsWith("float-to-double"))return s2pj_ToType(Utils.removeFirstWord(line), "double", false, true);
+		else if	(line.startsWith("double-to-int"))	return s2pj_ToType(Utils.removeFirstWord(line), "int", true, false);
+		else if	(line.startsWith("double-to-long"))	return s2pj_ToType(Utils.removeFirstWord(line), "long", true, true);
+		else if	(line.startsWith("double-to-float"))return s2pj_ToType(Utils.removeFirstWord(line), "float", true, false);
+		else if	(line.startsWith("int-to-byte")) 	return s2pj_ToType(Utils.removeFirstWord(line), "byte", false, false);
+		else if	(line.startsWith("int-to-char")) 	return s2pj_ToType(Utils.removeFirstWord(line), "char", false, false);
+		else if	(line.startsWith("int-to-short")) 	return s2pj_ToType(Utils.removeFirstWord(line), "short", false, false);
 		
-		else if	(line.startsWith("sget"))		 	return s2pj_StaticGet(Utils.removeFirstWord(line));
-		else if	(line.startsWith("sput"))		 	return s2pj_StaticPut(Utils.removeFirstWord(line));				
-		else if	(line.startsWith("iput")) 			return s2pj_InstancePut(Utils.removeFirstWord(line));
-		else if	(line.startsWith("iget")) 			return s2pj_InstanceGet(Utils.removeFirstWord(line));
-		else if	(line.startsWith("aget")) 			return s2pj_ArrayGet(Utils.removeFirstWord(line));
-		else if	(line.startsWith("aput")) 			return s2pj_ArrayPut(Utils.removeFirstWord(line));
+		else if	(line.startsWith("sget-wide"))		return s2pj_StaticGet(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("sget"))		 	return s2pj_StaticGet(Utils.removeFirstWord(line), false);
+		else if	(line.startsWith("sput-wide"))		return s2pj_StaticPut(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("sput"))		 	return s2pj_StaticPut(Utils.removeFirstWord(line), false);
+		else if	(line.startsWith("iput-wide")) 		return s2pj_InstancePut(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("iput")) 			return s2pj_InstancePut(Utils.removeFirstWord(line), false);
+		else if	(line.startsWith("iget-wide")) 		return s2pj_InstanceGet(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("iget")) 			return s2pj_InstanceGet(Utils.removeFirstWord(line), false);
+		else if	(line.startsWith("aget-wide"))		return s2pj_ArrayGet(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("aget")) 			return s2pj_ArrayGet(Utils.removeFirstWord(line), false);
+		else if	(line.startsWith("aput-wide"))		return s2pj_ArrayPut(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("aput")) 			return s2pj_ArrayPut(Utils.removeFirstWord(line), false);
 						
 		else if	(line.startsWith("cmpl")) 			return s2pj_Compare(Utils.removeFirstWord(line), "l");
 		else if	(line.startsWith("cmpg")) 			return s2pj_Compare(Utils.removeFirstWord(line), "g");
@@ -432,7 +469,8 @@ public class SmaliMethod {
 		else if	(line.startsWith("instance-of"))	return s2pj_InstanceOf(Utils.removeFirstWord(line));
 		else if	(line.startsWith("check-cast")) 	return s2pj_CheckCast(Utils.removeFirstWord(line));
 		else if	(line.startsWith("move-exception"))	return s2pj_MoveException(Utils.removeFirstWord(line));
-		else if	(line.startsWith("move"))			return s2pj_Move(Utils.removeFirstWord(line));
+		else if	(line.startsWith("move-wide"))		return s2pj_Move(Utils.removeFirstWord(line), true);
+		else if	(line.startsWith("move"))			return s2pj_Move(Utils.removeFirstWord(line), false);
 		else if	(line.startsWith("throw")) 			return s2pj_Throw(Utils.removeFirstWord(line));
 		else if	(line.startsWith("goto")) 			return s2pj_Goto(Utils.removeFirstWord(line));
 		else if	(line.startsWith("monitor-enter"))	return s2pj_MonitorEnter(Utils.removeFirstWord(line));
@@ -555,10 +593,68 @@ public class SmaliMethod {
 	private String s2pj_MoveResult(String line){return line + " = ";}
 	
 	private String s2pj_Const(String line){
+		if (line.startsWith("const-class")){
+			line = Utils.removeFirstWord(line);
+			String name = line.substring(0, line.indexOf(","));
+			String value = line.substring(line.indexOf(", ") + 2);
+			value = Utils.determineType(value) + ".class";
+			return name + " = "  + value + ";";
+		}
+		else if (line.startsWith("const-wide")){
+			//const-wide v2, 0x3fde28c7460698c7L
+			String[] words = line.split(" ");
+			String[] modeparts = words[0].split("/");
+			if (modeparts.length > 1){
+				String mode = modeparts[1];
+				int paddingmode = -1;
+				if (mode.compareTo("16") == 0 || mode.compareTo("32") == 0) paddingmode = Utils.PADDING_INFRONT; 
+				else if (mode.compareTo("high16") == 0) paddingmode = Utils.PADDING_BEHIND;
+				else return "[ERROR] const-wide Unknown Mode!!!";
+				
+				line = Utils.removeFirstWord(line);
+				String name = line.substring(0, line.indexOf(","));
+				String regtype = name.substring(0,1);
+				String reg = name.substring(1);
+				int adjreg = Integer.parseInt(reg) + 1;				
+				String adjname = regtype + adjreg;
+				name = getVarName(name);
+				String value = line.substring(line.indexOf(", ") + 2);
+				value = Utils.padToWide(value, paddingmode);
+				value = Utils.splitWideValue(value);
+				return name + "(," + adjname + ") = "  + value + ";";
+			}
+			else{
+				line = Utils.removeFirstWord(line);
+				String name = line.substring(0, line.indexOf(","));
+				String regtype = name.substring(0,1);
+				String reg = name.substring(1);
+				int adjreg = Integer.parseInt(reg) + 1;				
+				String adjname = regtype + adjreg;
+				name = getVarName(name);
+				String value = line.substring(line.indexOf(", ") + 2);
+				value = Utils.splitWideValue(value);
+				value = value.substring(0, value.length()-1);
+				return name + "(," + adjname + ") = "  + value + ";";
+				//return name + " = "  + value + ";";	
+			}
+		}
+		
+		// Else
+		String[] words = line.split(" ");
+		String[] modeparts = words[0].split("/");
+		int paddingmode = -1;
+		if (modeparts.length > 1){
+			String mode = modeparts[1];
+			if (mode.compareTo("4") == 0 || mode.compareTo("16") == 0) {} // Do nothing
+			else if (mode.compareTo("high16") == 0) paddingmode = Utils.PADDING_BEHIND;
+			else return "[ERROR] const-wide Unknown Mode!!!";
+		}
+		line = Utils.removeFirstWord(line);
 		String name = line.substring(0, line.indexOf(","));
 		name = getVarName(name);		
-		String value = line.substring(line.indexOf(", ") + 2);		
-		return name + " = "  + value + ";";
+		String value = line.substring(line.indexOf(", ") + 2);
+		if (paddingmode > 0) value = Utils.padToNormal(value, paddingmode);
+		return name + " = "  + value + ";";	
 	}
 	
 	private String s2pj_ArithmeticLiteral(String line, String arith){
@@ -569,19 +665,102 @@ public class SmaliMethod {
 		return dest + " = " + src + " " + arith + " " + litValue + ";";
 	}	
 	
-	private String s2pj_Arithmetic2Address(String line, String arith){
+	private String s2pj_Arithmetic2Address(String line, String arith, boolean wide){
 		String[] parts = line.split(", ");
+		
 		String dest = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
+		
 		String operand = getVarName(parts[1].trim());
+		if (wide){
+			String regtype = parts[1].substring(0,1);
+			String reg = parts[1].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			operand = operand + "(," + adjname + ")";
+		}
 		return dest + " = " + dest + " " + arith + " " + operand + ";";
 	}
 	
-	private String s2pj_ArithmeticNormal(String line, String arith){
+	private String s2pj_ArithmeticNormal(String line, String arith, boolean wide){
 		String[] parts = line.split(", ");
 		String dest = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
 		String src1 = getVarName(parts[1]);
+		if (wide){
+			String regtype = parts[1].substring(0,1);
+			String reg = parts[1].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			src1 = src1 + "(," + adjname + ")";
+		}
 		String src2 = getVarName(parts[2].trim());
+		if (wide){
+			String regtype = parts[2].substring(0,1);
+			String reg = parts[2].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			src2 = src2 + "(," + adjname + ")";
+		}
 		return dest + " = " + src1 + " " + arith + " " + src2 + ";";
+	}
+	
+	private String s2pj_Negate(String line, boolean wide){
+		String[] parts = line.split(", ");
+		
+		String dest = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
+		
+		String operand = getVarName(parts[1]);
+		if (wide){
+			String regtype = parts[1].substring(0,1);
+			String reg = parts[1].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			operand = operand + "(," + adjname + ")";
+		}
+		return dest + " = -" + operand + ";";
+	}
+	
+	private String s2pj_Not(String line, boolean wide){
+		String[] parts = line.split(", ");
+		
+		String dest = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
+		
+		String operand = getVarName(parts[1]);
+		if (wide){
+			String regtype = parts[1].substring(0,1);
+			String reg = parts[1].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			operand = operand + "(," + adjname + ")";
+		}
+		return dest + " = !" + operand + ";";
 	}
 	
 	private String s2pj_IfZero(String line, String cmp){
@@ -599,16 +778,40 @@ public class SmaliMethod {
 		return "if (" + left + " " + cmp + " " + right + ") goto " + go;
 	}
 	
-	private String s2pj_ToType(String line, String type){
+	private String s2pj_ToType(String line, String type, boolean widesrc, boolean widedst){
 		String[] parts = line.split(", ");
+		
 		String dest = getVarName(parts[0]);
+		if (widedst){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
+		
 		String src = getVarName(parts[1].trim());
+		if (widesrc){
+			String regtype = parts[1].substring(0,1);
+			String reg = parts[1].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			src = src + "(," + adjname + ")";
+		}
+		
 		return dest + " = (" + type + ") " + src + ";";
 	}
 	
-	private String s2pj_StaticGet(String line){
+	private String s2pj_StaticGet(String line, boolean wide){
 		String[] parts = line.split(", ");
 		String dest = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
 		String field = parts[1].trim();
 		String obj = field.substring(0, field.indexOf("->"));
 		obj = Utils.determineType(obj);
@@ -621,9 +824,16 @@ public class SmaliMethod {
 		return out;
 	}
 	
-	private String s2pj_StaticPut(String line){
+	private String s2pj_StaticPut(String line, boolean wide){
 		String[] parts = line.split(", ");
 		String value = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			value = value + "(," + adjname + ")";
+		}
 		String dest = parts[1].trim();
 		String obj = dest.substring(0, dest.indexOf("->"));
 		obj = Utils.determineType(obj);
@@ -636,9 +846,16 @@ public class SmaliMethod {
 		return out;
 	}
 	
-	private String s2pj_InstancePut(String line){
+	private String s2pj_InstancePut(String line, boolean wide){
 		String[] parts = line.split(", ");
 		String value = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			value = value + "(," + adjname + ")";
+		}
 		String destObject = getVarName(parts[1]);		
 		String destField = parts[2];
 		String type = destField.substring(destField.indexOf(":")+1);
@@ -650,9 +867,16 @@ public class SmaliMethod {
 		return out;
 	}
 	
-	private String s2pj_InstanceGet(String line){
+	private String s2pj_InstanceGet(String line, boolean wide){
 		String[] parts = line.split(", ");
-		String dest = getVarName(parts[0]);		
+		String dest = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
 		String srcObject = getVarName(parts[1]);		
 		String srcField = parts[2];
 		String type = srcField.substring(srcField.indexOf(":")+1);
@@ -664,17 +888,31 @@ public class SmaliMethod {
 		return out;
 	}
 	
-	private String s2pj_ArrayGet(String line){
+	private String s2pj_ArrayGet(String line, boolean wide){
 		String[] parts = line.split(", ");
-		String dest = getVarName(parts[0]);		
+		String dest = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
 		String arrayObj = getVarName(parts[1]);		
 		String arrayIndex = getVarName(parts[2].trim());		
 		return dest + " = " + arrayObj + "[" + arrayIndex + "];";
 	}
 	
-	private String s2pj_ArrayPut(String line){
+	private String s2pj_ArrayPut(String line, boolean wide){
 		String[] parts = line.split(", ");
-		String val = getVarName(parts[0]);		
+		String val = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			val = val + "(," + adjname + ")";
+		}
 		String arrayObj = getVarName(parts[1]);		
 		String arrayIndex = getVarName(parts[2].trim());		
 		return arrayObj + "[" + arrayIndex + "] = " + val + ";";
@@ -738,10 +976,26 @@ public class SmaliMethod {
 		return name + " = (" + type + ") " + name + ";";
 	}
 	
-	private String s2pj_Move(String line){
+	private String s2pj_Move(String line, boolean wide){
 		String[] parts = line.split(", ");
+		
 		String dest = getVarName(parts[0]);
+		if (wide){
+			String regtype = parts[0].substring(0,1);
+			String reg = parts[0].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			dest = dest + "(," + adjname + ")";
+		}
+		
 		String src = getVarName(parts[1]);
+		if (wide){
+			String regtype = parts[1].substring(0,1);
+			String reg = parts[1].substring(1);
+			int adjreg = Integer.parseInt(reg) + 1;
+			String adjname = regtype + adjreg;
+			src = src + "(," + adjname + ")";
+		}
 		
 		return dest + " = " + src + ";";
 	}
